@@ -1,0 +1,16 @@
+<style>
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+</style>
+
+<h1>Confirmação de E-mail</h1>
+
+<p>Por favor confirme seu e-mail com o link abaixo</p>
+
+<a href="@Link">Confirmar Email</a>
+
+@code {
+    [Parameter]
+    public string? Link { get; set; }
+}
