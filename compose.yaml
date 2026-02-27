@@ -9,3 +9,19 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: lioncore
+
+  minio:
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: ["server", "--console-address", ":9001", "/data"]
+    volumes:
+      - data-minio:/data
+    environment:
+      MINIO_ROOT_USER: minioroot
+      MINIO_ROOT_PASSWORD: minioroot
+      MINIO_DEFAULT_BUCKETS: system
+
+volumes:
+  data-minio:

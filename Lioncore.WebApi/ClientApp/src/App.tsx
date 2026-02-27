@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Toast from "./components/Toast";
 
 import Confirm from "./routes/Confirm";
+import Files from "./routes/Files";
 import ForgotPassword from "./routes/ForgotPassword";
 import Home from "./routes/Home";
 import Login from "./routes/Login";
@@ -26,6 +27,7 @@ const App = () => {
         <JustForPublic path="/forgotpassword" component={ForgotPassword} />
         <JustForPublic path="/resetpassword" component={ResetPassword} />
         <MustBeLoggedIn path="/" component={Home} />
+        <MustBeLoggedIn path="/files/*" component={Files} nest />
         <MustBeLoggedIn path="/manageaccount" component={ManageAccount} />
         <Route>404: No such page!</Route>
       </Switch>

@@ -9,7 +9,7 @@ export default function Drawer(props: { children?: React.ReactNode }) {
   return (
     <div className={`drawer ${isDrawerOpen && "lg:drawer-open"}`}>
       <input id="drawer" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content flex flex-col ">
+      <div className="drawer-content flex flex-col">
         <Navbar />
         {props.children}
       </div>
@@ -23,15 +23,21 @@ export default function Drawer(props: { children?: React.ReactNode }) {
           className={`menu bg-base-200 min-h-full w-64 p-4 gap-3 rounded-e-xl`}
         >
           <li>
-            <Link to="/">
+            <Link to="~/">
               <i className="fa-solid fa-house" />
               Início
             </Link>
           </li>
           <li>
-            <Link to="/manageaccount">
+            <Link to="~/manageaccount" replace>
               <i className="fa-solid fa-user" />
               Perfil
+            </Link>
+          </li>
+          <li>
+            <Link to="~/files/">
+              <i className="fa-solid fa-box-archive" />
+              Arquivos
             </Link>
           </li>
         </ul>
