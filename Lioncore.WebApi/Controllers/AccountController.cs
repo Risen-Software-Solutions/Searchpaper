@@ -68,7 +68,7 @@ public class AccountController : ControllerBase
         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
         var callbackUrl =
-            $"{_configuration["SpaUrl"]}/confirmemail?userId={user.Id}&code={HttpUtility.UrlEncode(code)}";
+            $"{_configuration["ApplicationUrl"]}/confirmemail?userId={user.Id}&code={HttpUtility.UrlEncode(code)}";
 
         var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
         {
@@ -133,7 +133,7 @@ public class AccountController : ControllerBase
         var code = await _userManager.GeneratePasswordResetTokenAsync(user);
 
         var callbackUrl =
-            $"{_configuration["SpaUrl"]}/resetpassword?email={user.Email}&code={HttpUtility.UrlEncode(code)}";
+            $"{_configuration["ApplicationUrl"]}/resetpassword?email={user.Email}&code={HttpUtility.UrlEncode(code)}";
 
         await using var htmlRenderer = new HtmlRenderer(
             HttpContext.RequestServices,
