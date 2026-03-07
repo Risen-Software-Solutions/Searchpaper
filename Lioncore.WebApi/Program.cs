@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Net;
 using Lioncore.WebApi.Context;
 using Lioncore.WebApi.Database;
 using Lioncore.WebApi.Entities;
@@ -5,14 +7,21 @@ using Lioncore.WebApi.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Yarp.ReverseProxy.Forwarder;
 
 namespace Lioncore.WebApi;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(
+            new WebApplicationOptions
+            {
+                Args = args,
+                WebRootPath = Path.Combine(Environment.CurrentDirectory, "ClientApp", "dist"),
+            }
+        );
 
         // Add services to the container.
 
@@ -60,6 +69,13 @@ public class Program
 
         builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+        builder.Services.AddHttpForwarder();
+
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddHostedService<ViteHostedService>();
+        }
+
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
@@ -76,11 +92,43 @@ public class Program
             {
                 options.DocumentPath = "/openapi/v1.json";
             });
+
+            var httpClient = new HttpMessageInvoker(
+                new SocketsHttpHandler
+                {
+                    UseProxy = false,
+                    AllowAutoRedirect = false,
+                    AutomaticDecompression = DecompressionMethods.None,
+                    UseCookies = true,
+                    EnableMultipleHttp2Connections = true,
+                    ActivityHeadersPropagator = new ReverseProxyPropagator(
+                        DistributedContextPropagator.Current
+                    ),
+                    ConnectTimeout = TimeSpan.FromSeconds(15),
+                }
+            );
+
+            var transformer = HttpTransformer.Default; // or HttpTransformer.Default;
+            var requestConfig = new ForwarderRequestConfig
+            {
+                ActivityTimeout = TimeSpan.FromSeconds(100),
+            };
+
+            var viteHost = app.Configuration["Vite:Host"];
+
+            if (string.IsNullOrEmpty(viteHost))
+            {
+                throw new NullReferenceException("Vite host cannot be null");
+            }
+
+            app.MapForwarder("/{**catch-all}", viteHost, requestConfig, transformer, httpClient);
         }
 
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
+
+        app.UseWebSockets();
 
         app.MapControllers();
 

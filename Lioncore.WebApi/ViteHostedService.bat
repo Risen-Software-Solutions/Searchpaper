@@ -1,0 +1,1 @@
+npm i --prefix ClientApp && npm run dev --prefix ClientApp
